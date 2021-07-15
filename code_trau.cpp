@@ -20,11 +20,16 @@ int cnt[355], n, k, t, nn;
 void check()
 {
     int ok = 0; ++cnt[tmp[0]];
-    for (int i = 1; i < (int)(tmp.size()) - 1; ++i)
+    for (int i = 1; i < (int)(tmp.size()); ++i)
     {
         ++cnt[tmp[i]];
         int odd = 0;
         REP(i, 1, 300) if (cnt[i]&1) ++odd;
+        if (i == (int)(tmp.size()) - 1)
+        {
+            if (odd == 0 || odd == 1) continue;
+            return;
+        }
         if (odd == 0 || odd == 1) ++ok;
     }
     REP(i, 0, 300) cnt[i] = 0;
