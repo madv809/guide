@@ -163,7 +163,8 @@ signed main()
     REP(i, 1, n) RED(j, i, 0) FOR(mask, 0, pow_nn)
     {
         g[i][j][mask] = g[i][j + 1][mask];
-        FOR(cur_mask, 0, pow_nn)
+
+        FOR(cur_mask, 0, pow_nn) if (panlin((mask^cur_mask)))
             g[i][j][mask] += f[i][j][mask][cur_mask];
     }
     FOR(mask, 0, pow_nn)
