@@ -167,8 +167,9 @@ signed main()
         FOR(cur_mask, 0, pow_nn) if (panlin((mask^cur_mask)))
             g[i][j][mask] += f[i][j][mask][cur_mask];
     }
-    FOR(mask, 0, pow_nn)
-        g[0][0][mask] = 1;
+    g[0][0][0] = 1;
+    FOR(x, 0, nn)
+        g[0][0][(1 << x)] = 1;
 
     //FOR(mask, 0, (1 << nn))
     //cout << f[n - 1][7][1][mask] << endl; return 0;
@@ -176,7 +177,7 @@ signed main()
     int mask = 0, leng = n, cur_k = 0;
     while(leng > 0)
     {
-        bool okk = 0; // dùng để so test với trình trâu chứ không có gì đặc biệt
+        //bool okk = 0; // dùng để so test với trình trâu chứ không có gì đặc biệt
         FOR(j, 0, nn)
         {
             bool ok = panlin((mask^(1 << j)));
@@ -189,12 +190,13 @@ signed main()
                 mask ^= (1 << j);
                 cur_k += ok;
                 --leng;
-                okk = 1;
+                //okk = 1;
                 break;
             }
         }
-        if (!okk) {cout << "out of size"; return 0;} // dùng để so test với trình trâu chứ không có gì đặc biệt
+        //if (!okk) {cout << "out of size"; return 0;} // dùng để so test với trình trâu chứ không có gì đặc biệt
     }
     RED(i, n, 1) cout << res[i]; cout << endl;
     //cout << set_char;
+    //cout << t;
 }
