@@ -179,7 +179,7 @@ signed main()
     int mask = 0, leng = n, cur_k = 0;
     while(leng > 0)
     {
-        bool okk = 0; // dùng để so test với trình trâu
+        bool okk = 0; // dùng để so test với trình trâu chứ không có gì đặc biệt
         FOR(j, 0, nn)
         {
             bool ok = panlin(mask^(1 << j));
@@ -196,7 +196,7 @@ signed main()
                 break;
             }
         }
-        if (!okk) {cout << "out of size"; return 0;} // dùng để so test với trình trâu
+        if (!okk) {cout << "out of size"; return 0;} // dùng để so test với trình trâu chứ không có gì đặc biệt
     }
     REP(i, 1, n) cout << res[i]; cout << endl;
     //cout << set_char;
