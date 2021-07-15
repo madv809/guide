@@ -39,7 +39,6 @@ struct BigN
     {
         FOR(i, 0, 8) a[i] = 0;
         n = 0;
-        n = 1;
     }
     void resize (int x) {for (int i = 0; i < x; ++i) a[i] = 0; n = x;}
     void trim() {while (n > 1 && a[n - 1] == 0) --n;}
