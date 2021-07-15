@@ -95,11 +95,6 @@ struct BigN
     }
 };
 
-string set_char;
-BigN dp[mxn][mxn][(1 << 5)][(1 << 5)], f[mxn][mxn][(1 << 5)][(1 << 5)], g[mxn][mxn][(1 << 5)], t;
-char res[mxn];
-int pos[mxn], n, k;
-
 bool operator > (const BigN &A, const BigN &B)
 {
     if (A.n != B.n) return (A.n > B.n);
@@ -136,6 +131,10 @@ bool panlin(int mask)
     return 0;
 }
 
+string set_char;
+BigN dp[mxn][mxn][(1 << 5)][(1 << 5)], f[mxn][mxn][(1 << 5)][(1 << 5)], g[mxn][mxn][(1 << 5)], t;
+char res[mxn];
+int pos[mxn], n, k;
 signed main()
 {
     //freopen("D:\\test.txt", "r", stdin);
