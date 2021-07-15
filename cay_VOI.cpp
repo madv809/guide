@@ -124,6 +124,8 @@ ostream &operator << (ostream &cout, const BigN &A)
     return cout;
 }
 
+// phần ở trên là code bignum, code chính bắt đầu từ đây     
+
 bool panlin(int mask)
 {
     if (mask == 0) return 1;
