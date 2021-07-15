@@ -1,6 +1,6 @@
 #include<bits/stdc++.h>
 
-//#define LL long long
+#define LL long long
 #define ULL unsigned long long
 #define FOR(i, a, b) for (int i = (a); i < (b); ++i)
 #define REP(i, a, b) for (int i = (a); i <= (b); ++i)
@@ -21,103 +21,183 @@
 #define lb long double
 //#define double long double
 //#define int LL
-#define LL int
+//#define LL int
 
 using namespace std;
-const int mxn = 3e5 + 1;
+const int mxn = 5e1 + 5;
 const int MOD = 1e9 + 7;
 const LL MODL = 1e9 + 7;
-const int BASE = 10000;
+const int BASE = 100000000;
 const int INF = 1e9 + 8;
-struct node
+const int T = 800;
+struct BigN
 {
-    LL val;
-    node *ptr[27];
-    node()
-    {
-        FOR(i, 0, 27) ptr[i] = NULL;
-        val = 0;
-    }
-} *root;
-string c[mxn];
-vector<int> s[mxn], s2;
-LL dp[mxn], f[mxn], g[mxn];
-int cnt[mxn], p[mxn], n, m;
+    int n;
+    int a[8];
 
-LL get(const int &i)
-{
-    node *u = root;
-    int pos = 0, nn = (int)(c[i].length()) - 1, nx;
-    LL res = 0;
-    while(pos < nn)
+    BigN()
     {
-        nx = (int)(c[i][pos] - 'A');
-        if (u->ptr[nx] == NULL) return res;
-        u = u->ptr[nx];
-        res = max(res, u->val);
-        ++pos;
+        FOR(i, 0, 8) a[i] = 0;
+        n = 0;
+        n = 1;
     }
-    return res;
+    void resize (int x) {for (int i = 0; i < x; ++i) a[i] = 0; n = x;}
+    void trim() {while (n > 1 && a[n - 1] == 0) --n;}
+    void normalize()
+    {
+        for (int i = 0; i < n - 1; ++i)
+        {
+            a[i + 1] += a[i]/BASE;
+            a[i] %= BASE;
+        }
+        trim();
+    }
+
+    int &operator [] (int i) {return a[i];}
+    const int operator [] (int i) const {return a[i];}
+    void operator = (int x)
+    {
+        a[0] = x;
+        n = 1;
+    }
+    void operator = (const BigN &A)
+    {
+        n = A.n;
+        for (int i = 0; i < n; ++i) a[i] = A[i];
+    }
+
+    void operator++()
+    {
+        ++n;
+        ++a[0];
+        normalize();
+    }
+
+    void operator += (const BigN &A)
+    {
+        FOR(i, 0, A.n) a[i] += A[i];
+        n = max(n, A.n) + 1;
+        normalize();
+    }
+
+    void operator -= (const BigN &A)
+    {
+        FOR(i, 0, A.n)
+        {
+            a[i] -= A[i];
+            if (a[i] < 0)
+            {
+                --a[i + 1];
+                a[i] += BASE;
+            }
+        }
+        normalize();
+    }
+};
+
+string set_char;
+BigN dp[mxn][mxn][(1 << 5)][(1 << 5)], f[mxn][mxn][(1 << 5)][(1 << 5)], g[mxn][mxn][(1 << 5)], t;
+char res[mxn];
+int pos[mxn], n, k;
+
+bool operator > (const BigN &A, const BigN &B)
+{
+    if (A.n != B.n) return (A.n > B.n);
+    for (int i = A.n - 1; i >= 0; --i) if (A[i] != B[i]) return (A[i] > B[i]);
+    return 0;
 }
 
-void update(const int &i)
+istream &operator >> (istream &cin, BigN &A)
 {
-    node *u = root;
-    int pos = 0, nn = (int)(c[i].length()), nx;
-    while(pos < nn)
+    string s;
+    cin >> s;
+    int k = s.length(), x;
+    A = 0; A.resize(k/8 + 1);
+    for (int i = 0; i < k; ++i)
     {
-        nx = (int)(c[i][pos] - 'A');
-        if (u->ptr[nx] == NULL) u->ptr[nx] = new node();
-        u = u->ptr[nx];
-        ++pos;
+        x = (k - 1 - i)/8;
+        A[x] = A[x]*10 + (s[i] - '0');
     }
-    u->val = max(u->val, dp[i]);
+    A.normalize();
+    return cin;
+}
+
+ostream &operator << (ostream &cout, const BigN &A)
+{
+    printf("%d", A[A.n - 1]);
+    for (int i = A.n - 2; i >= 0; --i) printf("%08d", A[i]);
+    return cout;
+}
+
+bool panlin(int mask)
+{
+    if (mask == 0) return 1;
+    if ((mask&(mask - 1)) == 0) return 1;
+    return 0;
 }
 
 signed main()
 {
     //freopen("D:\\test.txt", "r", stdin);
     //freopen("D:\\test2.txt", "w", stdout);
-    cin >> n >> m;
-    REP(i, 1, n)
+    cin >> n >> k; cin >> set_char; cin >> t;
+    int nn = set_char.length();
+    sort(set_char.begin(), set_char.end());
+    FOR(mask, 0, (1 << nn)) FOR(k, 0, nn)
     {
-        cin >> c[i];
-        scanf("%d", &p[i]);
-    }
-    int x, y;
-    REP(i, 1, m)
-    {
-        scanf("%d%d", &x, &y);
-        s[x].pb(y); s[y].pb(x);
-        ++cnt[x]; ++cnt[y];
-    }
-    int T = (int)(sqrt(2.0*m));
-    REP(i, 1, n)
-    {
-        if (cnt[p[i]] > T) s2.pb(p[i]);
-        sort(s[i].begin(), s[i].end());
+        if (panlin((mask^(1 << k)))) ++dp[1][1][mask][(1 << k)];
+        else ++dp[1][0][mask][(1 << k)];
+        ++f[1][0][mask][(1 << k)];
     }
 
-    root = new node();
-    for (int i = n; i >= 1; --i)
+    REP(i, 2, n) REP(j, 0, i) FOR(mask, 0, (1 << nn))
     {
-        dp[i] = max((LL)(p[i]), get(i) + (LL)(p[i]));
-        dp[i] = max(dp[i], f[p[i]] + (LL)(p[i]));
-        for (int x : s2)
+        FOR(cur_mask, 0, (1 << nn)) FOR(k, 0, nn)
         {
-            auto it = lower_bound(s[x].begin(), s[x].end(), p[i]);
-            if (it == s[x].end() || *it != p[i]) continue;
-            dp[i] = max(dp[i], g[x] + (LL)(p[i]));
+            if (panlin((cur_mask^mask)))
+            {
+                if (j > 0)
+                dp[i][j][mask][cur_mask] += dp[i - 1][j - 1][mask][cur_mask^(1 << k)];
+            }
+            else dp[i][j][mask][cur_mask] += dp[i - 1][j][mask][cur_mask^(1 << k)];
+            f[i][j][mask][cur_mask] += dp[i - 1][j][mask][cur_mask^(1 << k)];
         }
-        update(i);
-        if (cnt[p[i]] <= T)
-        {
-            for (int x : s[p[i]])
-                f[x] = max(f[x], dp[i]);
-        }
-        else g[p[i]] = max(g[p[i]], dp[i]);
     }
-    LL res = 0;
-    REP(i, 1, n) res = max(res, dp[i]);
-    cout << res;
+
+    REP(i, 1, n) RED(j, i, 0) FOR(mask, 0, (1 << nn))
+    {
+        g[i][j][mask] = g[i][j + 1][mask];
+        FOR(cur_mask, 0, (1 << nn))
+            g[i][j][mask] += f[i][j][mask][cur_mask];
+    }
+    FOR(mask, 0, (1 << nn))
+        g[0][0][mask] = 1;
+
+    //FOR(mask, 0, (1 << nn))
+    //cout << f[n - 1][7][1][mask] << endl; return 0;
+
+    int mask = 0, leng = n, cur_k = 0;
+    while(leng > 0)
+    {
+        bool okk = 0; // dùng để so test với trình trâu
+        FOR(j, 0, nn)
+        {
+            bool ok = panlin(mask^(1 << j));
+            if (leng == n || leng == 1) ok = 0;
+            if (t > g[leng - 1][max(0, k - cur_k - ok)][mask^(1 << j)])
+                t -= g[leng - 1][max(0, k - cur_k - ok)][mask^(1 << j)];
+            else
+            {
+                res[n - leng + 1] = set_char[j];
+                mask ^= (1 << j);
+                cur_k += ok;
+                --leng;
+                okk = 1;
+                break;
+            }
+        }
+        if (!okk) {cout << "out of size"; return 0;} // dùng để so test với trình trâu
+    }
+    REP(i, 1, n) cout << res[i]; cout << endl;
+    //cout << set_char;
 }
