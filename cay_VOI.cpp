@@ -124,13 +124,12 @@ ostream &operator << (ostream &cout, const BigN &A)
     return cout;
 }
 
-// phần ở trên là code bignum, code chính bắt đầu từ đây     
+// phần ở trên là code bignum, code chính bắt đầu từ đây
 
 bool panlin(int mask)
 {
-    if (mask == 0) return 1;
-    if ((mask&(mask - 1)) == 0) return 1;
-    return 0;
+    if (mask == 0 || mask == 1) return 1;
+    return ((mask&(mask - 1)) == 0);
 }
 
 string set_char;
@@ -144,34 +143,31 @@ signed main()
     cin >> n >> k; cin >> set_char; cin >> t;
     int nn = set_char.length();
     sort(set_char.begin(), set_char.end());
-    FOR(mask, 0, (1 << nn)) FOR(k, 0, nn)
+    int pow_nn = (1 << nn);
+    FOR(mask, 0, pow_nn)
     {
-        if (panlin((mask^(1 << k)))) ++dp[1][1][mask][(1 << k)];
-        else ++dp[1][0][mask][(1 << k)];
-        ++f[1][0][mask][(1 << k)];
+        dp[0][0][mask][0] = 1;
+        f[0][0][mask][0] = 1;
     }
 
-    REP(i, 2, n) REP(j, 0, i) FOR(mask, 0, (1 << nn))
+    REP(i, 1, n) REP(j, 0, i) FOR(mask, 0, pow_nn) FOR(cur_mask, 0, pow_nn) FOR(k, 0, nn)
     {
-        FOR(cur_mask, 0, (1 << nn)) FOR(k, 0, nn)
+        if (panlin((cur_mask^mask)))
         {
-            if (panlin((cur_mask^mask)))
-            {
-                if (j > 0)
-                dp[i][j][mask][cur_mask] += dp[i - 1][j - 1][mask][cur_mask^(1 << k)];
-            }
-            else dp[i][j][mask][cur_mask] += dp[i - 1][j][mask][cur_mask^(1 << k)];
-            f[i][j][mask][cur_mask] += dp[i - 1][j][mask][cur_mask^(1 << k)];
+            if (j > 0)
+            dp[i][j][mask][cur_mask] += dp[i - 1][j - 1][mask][(cur_mask^(1 << k))];
         }
+        else dp[i][j][mask][cur_mask] += dp[i - 1][j][mask][(cur_mask^(1 << k))];
+        f[i][j][mask][cur_mask] += dp[i - 1][j][mask][(cur_mask^(1 << k))];
     }
 
-    REP(i, 1, n) RED(j, i, 0) FOR(mask, 0, (1 << nn))
+    REP(i, 1, n) RED(j, i, 0) FOR(mask, 0, pow_nn)
     {
         g[i][j][mask] = g[i][j + 1][mask];
-        FOR(cur_mask, 0, (1 << nn))
+        FOR(cur_mask, 0, pow_nn)
             g[i][j][mask] += f[i][j][mask][cur_mask];
     }
-    FOR(mask, 0, (1 << nn))
+    FOR(mask, 0, pow_nn)
         g[0][0][mask] = 1;
 
     //FOR(mask, 0, (1 << nn))
@@ -183,13 +179,13 @@ signed main()
         bool okk = 0; // dùng để so test với trình trâu chứ không có gì đặc biệt
         FOR(j, 0, nn)
         {
-            bool ok = panlin(mask^(1 << j));
+            bool ok = panlin((mask^(1 << j)));
             if (leng == n || leng == 1) ok = 0;
-            if (t > g[leng - 1][max(0, k - cur_k - ok)][mask^(1 << j)])
-                t -= g[leng - 1][max(0, k - cur_k - ok)][mask^(1 << j)];
+            if (t > g[leng - 1][max(0, k - cur_k - ok)][(mask^(1 << j))])
+                t -= g[leng - 1][max(0, k - cur_k - ok)][(mask^(1 << j))];
             else
             {
-                res[n - leng + 1] = set_char[j];
+                res[leng] = set_char[j];
                 mask ^= (1 << j);
                 cur_k += ok;
                 --leng;
@@ -199,6 +195,6 @@ signed main()
         }
         if (!okk) {cout << "out of size"; return 0;} // dùng để so test với trình trâu chứ không có gì đặc biệt
     }
-    REP(i, 1, n) cout << res[i]; cout << endl;
+    RED(i, n, 1) cout << res[i]; cout << endl;
     //cout << set_char;
 }
