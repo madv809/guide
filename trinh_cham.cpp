@@ -26,6 +26,7 @@ const string test_chuan = "D:\\test2.txt";
 const string test_trau = "D:\\test_ans.txt";
 const string test_input = "D:\\test.txt";
 ofstream f;
+set<LL> s;
 int main()
 {
     srand(time(NULL));
@@ -33,14 +34,18 @@ int main()
     {
         f.open(test_input, ios::out);
         // viết code sinh test ở đây
-        set<LL> s;
+        s.clear();
         LL n = rad(3, 5), k = rad(4, 8);
         f << n << ' ' << k << endl;
-        LL x = 96LL + rad(0, 24);
-        while(s.find(x) != s.end())x = 96LL + rad(0, 24);
-        s.insert(x);
-        REP(i, 1, n) f << char(x); f << endl;
-        f << rad(3, 5);
+        REP(i, 1, n)
+        {
+            LL x = 96LL + rad(0, 24);
+            while(s.find(x) != s.end())x = 96LL + rad(0, 24);
+            s.insert(x);
+            f << char(x);
+        }
+        f << endl;
+        f << rad(1, 10);
         //
         f.close();
         system((code_chuan).c_str()); // chạy code "chuẩn"
